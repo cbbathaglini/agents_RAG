@@ -1,0 +1,27 @@
+{
+  "name": "vestido-aurora",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "download:model": "tsx scripts/download-model.ts",
+    "chat:demo": "tsx scripts/chat-demo.ts",
+    "rag:demo": "tsx scripts/rag-demo.ts",
+    "agent:demo": "tsx scripts/agent-demo.ts"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "openai": "^7.9.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.4.1",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
+  }
+}

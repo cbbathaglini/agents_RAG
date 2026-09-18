@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vestido Aurora · Demo ao vivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="brand">
+        <span class="dot dot-rag"></span>
+        <span class="brand-title">Vestido Aurora</span>
+        <span class="brand-sub">do dado à decisão · demo ao vivo</span>
+      </div>
+      <div class="mode">
+        <button class="mode-btn on" data-mode="agent" id="mode-agent">Objetivo (Agent)</button>
+        <button class="mode-btn" data-mode="rag" id="mode-rag">Pergunta (RAG)</button>
+        <button class="mode-btn" data-mode="service" id="mode-service">Sem IA</button>
+      </div>
+    </header>
+
+    <section class="composer">
+      <input
+        id="goal"
+        type="text"
+        spellcheck="false"
+        placeholder="ex.: Crie um vídeo para divulgar o Vestido Aurora"
+      />
+      <button id="run" class="run-btn">Executar</button>
+      <button id="stop" class="stop-btn hidden">Parar</button>
+      <div class="presets" id="presets"></div>
+      <div id="rag-lab" class="lab hidden">
+        <div class="lab-item">
+          <label class="lab-label">Tamanho do chunk (palavras) <b id="v-size">16</b></label>
+          <input type="range" id="lab-size" min="6" max="40" step="1" value="16" />
+        </div>
+        <div class="lab-item">
+          <label class="lab-label">Sobreposição (overlap) <b id="v-overlap">3</b></label>
+          <input type="range" id="lab-overlap" min="0" max="9" step="1" value="3" />
+        </div>
+        <div class="lab-item">
+          <label class="lab-label">Top-K <b id="v-topk">6</b></label>
+          <input type="range" id="lab-topk" min="1" max="8" step="1" value="6" />
+        </div>
+        <div class="lab-item">
+          <label class="lab-label">Similarity threshold <b id="v-thr">0.00</b></label>
+          <input type="range" id="lab-thr" min="0" max="0.95" step="0.01" value="0" />
+        </div>
+        <button id="lab-reset" class="preset">restaurar padrão</button>
+      </div>
+    </section>
+
+    <main class="stage">
+      <section class="col-log">
+        <div class="panel-title">o que está acontecendo</div>
+        <div id="log" class="log"></div>
+      </section>
+
+      <section class="col-out">
+        <div class="panel-title">resultado</div>
+        <div id="output" class="output">
+          <div id="result-media" class="result-media">
+            <div class="placeholder">Escolha um objetivo ou pergunta e clique em Executar.<br />A imagem/vídeo gerado aparece aqui.</div>
+          </div>
+          <div id="result-text" class="result-text">
+            <div class="placeholder-text">E a resposta em texto aparece aqui.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span class="legend"><i class="sw sw-agent"></i>Agent decide</span>
+      <span class="legend"><i class="sw sw-rag"></i>RAG conhece</span>
+      <span class="legend"><i class="sw sw-tool"></i>Tool</span>
+      <span class="legend"><i class="sw sw-ms"></i>Serviço executa</span>
+      <span class="hint mono" id="status">ocioso</span>
+    </footer>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

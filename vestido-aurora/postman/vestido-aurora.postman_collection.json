@@ -1,0 +1,214 @@
+{
+  "info": {
+    "name": "Vestido Aurora · Demo RAG e Agents",
+    "description": "Passo a passo da demo. Primeiro o fluxo sem IA, com chamadas diretas aos services e ao workflow fixo. Depois os endpoints de RAG e Multi-Agent em SSE.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 · Sem IA: services e workflow",
+      "description": "Demonstra a base tradicional: services executam capacidades e o workflow chama os services em ordem fixa. Não há LLM decidindo o caminho.",
+      "item": [
+        {
+          "name": "01 · Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health",
+            "description": "Confirma que o backend local está no ar. Esperado: { status: \"ok\" }."
+          }
+        },
+        {
+          "name": "02 · Image Service: gerar imagem real",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Image Service respondeu com imageUrl', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.imageUrl).to.be.a('string').and.not.empty;",
+                  "  pm.environment.set('imageUrl', json.imageUrl);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prompt\": \"{{prompt}}\"\n}"
+            },
+            "url": "{{baseUrl}}/images",
+            "description": "Chama o Image Service diretamente. O service usa Atlas Cloud com o modelo fixo alibaba/wan-2.7-pro/image-edit e salva imageUrl no environment."
+          }
+        },
+        {
+          "name": "03 · Video Service: gerar vídeo real",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Video Service respondeu com videoUrl', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.videoUrl).to.be.a('string').and.not.empty;",
+                  "  pm.environment.set('videoUrl', json.videoUrl);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"imageUrl\": \"{{imageUrl}}\",\n  \"prompt\": \"{{videoPrompt}}\"\n}"
+            },
+            "url": "{{baseUrl}}/videos",
+            "description": "Chama o Video Service diretamente. O service usa Atlas Cloud com alibaba/wan-2.7/image-to-video e força no prompt: no máximo 3 segundos, sem áudio."
+          }
+        },
+        {
+          "name": "04 · Caption Service: aplicar legenda local",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"videoUrl\": \"{{videoUrl}}\",\n  \"text\": \"{{captionText}}\"\n}"
+            },
+            "url": "{{baseUrl}}/captions",
+            "description": "Chama o Caption Service local. Ele fecha o pipeline sem LLM, registrando a legenda no retorno."
+          }
+        },
+        {
+          "name": "05 · Workflow sem IA: fluxo completo real",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Workflow retornou imagem, vídeo e legenda', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.image.imageUrl).to.be.a('string').and.not.empty;",
+                  "  pm.expect(json.video.videoUrl).to.be.a('string').and.not.empty;",
+                  "  pm.expect(json.caption.caption).to.be.a('string').and.not.empty;",
+                  "  pm.environment.set('imageUrl', json.image.imageUrl);",
+                  "  pm.environment.set('videoUrl', json.video.videoUrl);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prompt\": \"{{prompt}}\"\n}"
+            },
+            "url": "{{baseUrl}}/workflow",
+            "description": "Executa o caminho sem IA: Image Service -> Video Service -> Caption Service. A ordem está fixa no código pelo desenvolvedor."
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 · IA: RAG e Multi-Agent",
+      "description": "Endpoints SSE usados pela interface web. No Postman, abra a resposta em tempo real para ver os eventos chegando.",
+      "item": [
+        {
+          "name": "06 · RAG Lab: pergunta com fontes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/rag?q={{question}}&chunkSize=16&overlap=3&topK=6&threshold=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "rag"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "{{question}}"
+                },
+                {
+                  "key": "chunkSize",
+                  "value": "16"
+                },
+                {
+                  "key": "overlap",
+                  "value": "3"
+                },
+                {
+                  "key": "topK",
+                  "value": "6"
+                },
+                {
+                  "key": "threshold",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Mostra embedding, chunking, recuperação por similaridade e resposta com fontes."
+          }
+        },
+        {
+          "name": "07 · Multi-Agent: objetivo completo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/agent?goal={{goal}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "agent"
+              ],
+              "query": [
+                {
+                  "key": "goal",
+                  "value": "{{goal}}"
+                }
+              ]
+            },
+            "description": "Executa Orchestrator Agent + Knowledge/Image/Video/Caption Agents. Os eventos mostram delegações, decisões, tools e resultados."
+          }
+        }
+      ]
+    }
+  ]
+}
