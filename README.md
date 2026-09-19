@@ -33,6 +33,10 @@ npm run build
 npm run preview
 ```
 
+### Publicar na Vercel
+
+O repositório aceita o deploy a partir da raiz: o arquivo `vercel.json` executa a instalação e o build em `presentation/`. Se o projeto da Vercel estiver configurado com **Root Directory** igual a `presentation`, a configuração equivalente existente nessa pasta será usada.
+
 ## Executar a demonstração
 
 Em outro terminal:
